@@ -1,0 +1,47 @@
+---
+title: "Ejercicio 4"
+author: "Evelyn Hernandez Melchor"
+date: "2023-04-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Ejercicio 4 
+**Proponga una mejora al archivo Diccionario de Economía utilizando github para generar una rama adicional del repositorio, modificandola y luego solictiando que se incriporen los cambios.** 
+
+
+Para revisar la versión del diccionario modificado se puede revisar el archivo Diccionario_De_Economia_Propuesta que se encuentra en esta carpeta y en el repositorio. A continuación se detallan los cambios realizados.
+
+
+Las mejoras que se propusieron en el Diccionario de economía pueden divirse en tres categorías:
+\begin{itemize}
+\item *Adición de concepto* 
+
+
+Deuda: Obligación financiera que una persona, empresa o gobierno tiene con otra entidad, ya sea una institucion financiera, un prestamista o un proveedor de bienes o servicios. La deuda puede ser contraída a través de préstamos, emisión de bonos, tarjetas de crédito, entre otros medios.
+
+
+\includegraphics{C:/Users/lynev/OneDrive/Documentos/GitHub/Tarea-3-Equipo-3/Concepto.png}
+
+
+\newpage
+
+\item Modificación de formato: Se cambio la forma en la que se numeraban las páginas, en lugar de dejar la numeración de página en la parte de abajo centrada, se modificó para que apareciera la numeración con el estilo Pág.4-14.
+
+\includegraphics{C:/Users/lynev/OneDrive/Documentos/GitHub/Tarea-3-Equipo-3/Encabezado.png}
+
+
+\item Homogeneización de estilo: Se revisaron las definiciones y se siguió el mismo formato, corrigiendo aquellas definiciones que tenían un formato distinto.
+
+
+**Resumen de las modificaciones realizadas.**
+
+
+\includegraphics{C:/Users/lynev/OneDrive/Documentos/GitHub/Tarea-3-Equipo-3/Resumen.png}
+
+
+\end{itemize}
+
