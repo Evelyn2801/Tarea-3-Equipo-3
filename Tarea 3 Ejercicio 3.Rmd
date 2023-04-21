@@ -1,0 +1,293 @@
+--- 
+output:
+  pdf_document:
+    keep_tex: yes
+  html_document: default
+link-citations: yes
+documentclass: book
+description: Este es un ejemplo mínimo de métodos numéricos usando R, knitr y latex
+---
+
+
+# Problema 3
+
+Haga una modificación al problema de la empresa que se resuelve en el codigo para resolución numérica del problema de inversión y reporte los cambios que observe en las funciones valor y de política.
+
+
+```{r, echo=FALSE}
+# Cardinalidad del espacio de capital
+N <- 500
+# Cardinalidad del espacio de productividad
+M <- 5
+# Límites de variables de estado
+KMin<-1
+KMax<-10^5
+AMin<-1
+AMax<-5
+```
+
+```{r, echo=FALSE}
+# Cardinalidad del espacio de capital
+Nb <- 500
+# Cardinalidad del espacio de productividad
+Mb <- 5
+# Límites de variables de estado
+KMinb<-1
+KMaxb<-10^5
+AMinb<-1
+AMaxb<-5
+```
+
+### Parámetros económicos
+Se modifican los parámetros económicos para ver el comportamiento de la empresa con variaciones en sus costos.
+```{r}
+# Parámetros del modelo
+Alpha <- 0.5  #Concavidad de la función producción
+Costo_Convexo <- 2  #Coeficiente de los costos de ajuste convexos
+Beta <- 0.95
+Costo_NoConvexo<-0.001  #coeficiente de los costos de ajuste NO convexos
+```
+
+```{r}
+# Parámetros del modelo modificado
+Alphab <- 0.5  #Concavidad de la función producción
+Costo_Convexob <- 20  #Coeficiente de los costos de ajuste convexos
+Betab <- 0.95
+Costo_NoConvexob<-0.001  #coeficiente de los costos de ajuste NO convexos
+```
+
+
+```{r, echo=FALSE}
+# Vectores índice auxiliares
+IndexN <- 1:(N)
+IndexM <- 1:(M)
+# Vector de capital
+K <- exp(log(KMin) +(IndexN-1)/(N-1)*(log(KMax)-log(KMin)))
+
+# Vector de productividad
+A <- exp(log(AMin) +(IndexM-1)/(M-1)*(log(AMax)-log(AMin)))
+```
+
+```{r, echo=FALSE}
+# Vectores índice auxiliares
+IndexNb <- 1:(Nb)
+IndexMb <- 1:(Mb)
+# Vector de capital
+Kb <- exp(log(KMinb) +(IndexNb-1)/(Nb-1)*(log(KMaxb)-log(KMinb)))
+
+# Vector de productividad
+Ab <- exp(log(AMinb) +(IndexMb-1)/(Mb-1)*(log(AMaxb)-log(AMinb)))
+```
+
+```{r, echo=FALSE}
+# Matriz de probabilidades de transci'on
+P <-t(matrix(c(0.6,0.2,0.1,0.1,0,0.15,0.55,0.15,0.1,0.05,0.1,0.15,0.5,0.15,0.1,0.05,0.1,0.15,0.55,0.15,0,0.1,0.1,0.2,0.6),nrow=M,ncol=M))
+
+# Matrix auxiliar: P "accumulada"
+
+PAcc<- P%*%upper.tri(matrix(1.0,M,M),diag=TRUE)
+
+
+```
+
+```{r, echo=FALSE}
+# Matriz de probabilidades de transci'on
+Pb <-t(matrix(c(0.6,0.2,0.1,0.1,0,0.15,0.55,0.15,0.1,0.05,0.1,0.15,0.5,0.15,0.1,0.05,0.1,0.15,0.55,0.15,0,0.1,0.1,0.2,0.6),nrow=Mb,ncol=Mb))
+
+# Matrix auxiliar: P "accumulada"
+
+PAccb<- Pb%*%upper.tri(matrix(1.0,Mb,Mb),diag=TRUE)
+
+
+```
+
+```{r, echo=FALSE}
+KMatrix <- matrix(data=c(K,K,K,K,K),nrow=M,ncol=N,byrow=T)
+IndexMatrix <- matrix(data=c(IndexN,IndexN,IndexN,IndexN,IndexN),nrow=M,ncol=N,byrow=T)
+V0<-matrix(0,nrow=M,ncol=N)
+V1<-V0
+HIndex<-V0
+HReal<-V0
+# graficar la funci'on valor para distintos valores de K, A
+
+```
+
+```{r, echo=FALSE}
+KMatrixb <- matrix(data=c(Kb,Kb,Kb,Kb,Kb),nrow=Mb,ncol=Nb,byrow=T)
+IndexMatrixb <- matrix(data=c(IndexNb,IndexNb,IndexNb,IndexNb,IndexNb),nrow=Mb,ncol=Nb,byrow=T)
+V0b<-matrix(0,nrow=Mb,ncol=Nb)
+V1b<-V0b
+HIndexb<-V0b
+HRealb<-V0b
+# graficar la funci'on valor para distintos valores de K, A
+
+```
+
+```{r, echo=FALSE}
+AMatrix <- matrix(data=rep(A,N),nrow=M,ncol=N,byrow=F)
+Matriz_Ventas <- AMatrix*(KMatrix^Alpha)
+#plot(Matriz_Ventas[1,])
+#plot(Matriz_Ventas[,1])
+
+
+KInicial=matrix(data=K,nrow=N,ncol=N,byrow=F)
+KFinal=matrix(data=K,nrow=N,ncol=N,byrow=T)
+Matriz_I<-KFinal-KInicial
+Matriz_CI <- Costo_Convexo*KInicial*(Matriz_I/KInicial)^2
+Matriz_I_Dif_0<- (Matriz_I<0)+(Matriz_I>0)
+Matriz_CostoNoConvexo<-Costo_NoConvexo*(Matriz_I_Dif_0)
+#V0=KMatrix
+#V1=0*KMatrix
+
+```
+
+```{r, echo=FALSE}
+AMatrixb <- matrix(data=rep(Ab,Nb),nrow=Mb,ncol=Nb,byrow=F)
+Matriz_Ventasb <- AMatrixb*(KMatrixb^Alphab)
+#plot(Matriz_Ventasb[1,])
+#plot(Matriz_Ventasb[,1])
+
+
+KInicialb=matrix(data=Kb,nrow=Nb,ncol=Nb,byrow=F)
+KFinalb=matrix(data=Kb,nrow=Nb,ncol=Nb,byrow=T)
+Matriz_Ib<-KFinalb-KInicialb
+Matriz_CIb <- Costo_Convexob*KInicialb*(Matriz_Ib/KInicialb)^2
+Matriz_I_Dif_0b<- (Matriz_Ib<0)+(Matriz_Ib>0)
+Matriz_CostoNoConvexob<-Costo_NoConvexob*(Matriz_I_Dif_0b)
+#V0=KMatrix
+#V1=0*KMatrix
+
+```
+
+```{r, echo=FALSE} 
+# Repetimos un número de veces TMax un ciclo de calcular una nueva V (V1) a partir de una V (V0) existente. 
+TTMaxb<-100
+TTb<-1
+for (TTb in 1:TTMaxb){
+  # En cada ciclo, construimos el valor esperado de V para cada punto del espacio estado [K,P], en este caso lo hacemos simplemente pre-multiplicando V0 por la matriz de transición P
+  EVb=Pb%*%V0b
+  i<-1
+  j<-1
+  for (i in 1:Mb){  # este es el 'indice de la productividad
+    for (j in 1:Nb){ # este es el 'indice del capital
+      # Para el punto i,j del espacio estado [K,P] calculamos el valor de cada acción posible. En este caso las acciones las codificamos como seleccionar un valor [k'] y su valor se calcula con las funciones de producción y de costos de ajuste, y con el valor esperado, descontado por Beta, de V(k').
+#      VijOptions = A[i]*(K[j]^Alpha)-K[j]*((K-K[j])/K[j])^2-(K-K[j])+Beta*EV[i,]
+      VijOptionsb <- Matriz_Ventasb[i,j]-Matriz_CIb[j,]-Matriz_Ib[j,]-Matriz_CostoNoConvexob[j,]+Betab*EVb[i,]
+#     VijOptions <- A[i]*(K[j]^Alpha)-Costo_Convexo*K[j]*((K-K[j])/K[j])^2-(K-K[j])-Costo_NoConvexo*K[j]*Matriz_I_Dif_0[j,]+Beta*EV[i,]
+      Vijb <- max(VijOptionsb)
+      Hijb <- which.max(VijOptionsb)
+      V1b[i,j]=Vijb
+      HIndexb[i,j]=Hijb
+      HRealb[i,j]=Kb[Hijb]
+    }
+  }
+  # Aprovechamos para observar como la distancia entre V1 y V0 va disminuyendo conforme repetimos este proceso
+  
+  V0b<-V1b
+}
+ 
+```
+
+```{r, echo=FALSE} 
+# Repetimos un número de veces TMax un ciclo de calcular una nueva V (V1) a partir de una V (V0) existente. 
+TTMax<-100
+TT<-1
+for (TT in 1:TTMax){
+  # En cada ciclo, construimos el valor esperado de V para cada punto del espacio estado [K,P], en este caso lo hacemos simplemente pre-multiplicando V0 por la matriz de transición P
+  EV=P%*%V0
+  i<-1
+  j<-1
+  for (i in 1:M){  # este es el 'indice de la productividad
+    for (j in 1:N){ # este es el 'indice del capital
+      # Para el punto i,j del espacio estado [K,P] calculamos el valor de cada acción posible. En este caso las acciones las codificamos como seleccionar un valor [k'] y su valor se calcula con las funciones de producción y de costos de ajuste, y con el valor esperado, descontado por Beta, de V(k').
+#      VijOptions = A[i]*(K[j]^Alpha)-K[j]*((K-K[j])/K[j])^2-(K-K[j])+Beta*EV[i,]
+      VijOptions <- Matriz_Ventas[i,j]-Matriz_CI[j,]-Matriz_I[j,]-Matriz_CostoNoConvexo[j,]+Beta*EV[i,]
+#     VijOptions <- A[i]*(K[j]^Alpha)-Costo_Convexo*K[j]*((K-K[j])/K[j])^2-(K-K[j])-Costo_NoConvexo*K[j]*Matriz_I_Dif_0[j,]+Beta*EV[i,]
+      Vij <- max(VijOptions)
+      Hij <- which.max(VijOptions)
+      V1[i,j]=Vij
+      HIndex[i,j]=Hij
+      HReal[i,j]=K[Hij]
+    }
+  }
+  # Aprovechamos para observar como la distancia entre V1 y V0 va disminuyendo conforme repetimos este proceso
+  
+  V0<-V1
+}
+ # Función Valor V(K,A)
+  matplot(t(KMatrix),t(V0),type="lll", xlab="K", main="Función Valor")
+  # Función Valor V(K,A) (Modificado)
+  matplot(t(KMatrixb),t(V0b),type="lll", xlab="K", main="Función Valor (Modificada)")
+  
+  # Función de Política o de Decisión o "Policy Function" H(K,A)
+  matplot(t(KMatrix),t(HReal),type="lll", xlab="K", main="Función de Decisión - expresada como K' ")
+  # Función de Política o de Decisión o "Policy Function" H(K,A) (Modificado)
+  matplot(t(KMatrixb),t(HRealb),type="lll", xlab="K", main="Función de Decisión - expresada como K'(Modificada) ")
+  
+  
+  # Función q(K,A)
+    q<-(t(V0[,2:(N)])-t(V0[,1:(N-1)]))/(t(KMatrix[,2:(N)])-t(KMatrix[,1:(N-1)]))
+  matplot(t(IndexMatrix[,1:(N-1)]), q,type="lll", xlab="K", main="Función q")
+  
+    # Función q(K,A) (Modificado)
+    qb<-(t(V0b[,2:(Nb)])-t(V0b[,1:(Nb-1)]))/(t(KMatrixb[,2:(Nb)])-t(KMatrixb[,1:(Nb-1)]))
+  matplot(t(IndexMatrixb[,1:(Nb-1)]), qb,type="lll", xlab="K", main="Función q (Modificada)")
+  
+```
+
+
+```{r, echo=FALSE}
+# Número de periodos.
+MaxT<-100
+# Numero de individuos
+Individuos<-20
+
+# Vectores de historia
+KHist<-matrix(0,ncol=Individuos,nrow=MaxT)
+AHist<-matrix(0,ncol=Individuos,nrow=MaxT)
+
+# Valores iniciales
+
+AHist[1,]<- round(M/2)
+KHist[1,]<- round(N/2)
+
+for (t in 1:(MaxT-1)){
+  for (j in 1:20){
+  KHist[t+1,j]<-HIndex[AHist[t,j],KHist[t,j]]
+  AHist[t+1,j]<-sum(runif(1,0,1)>PAcc[AHist[t,j],])+1
+  }
+}
+
+```
+
+```{r, echo=FALSE}
+# Número de periodos.
+MaxTb<-100
+# Numero de individuos
+Individuosb<-20
+
+# Vectores de historia
+KHistb<-matrix(0,ncol=Individuosb,nrow=MaxTb)
+AHistb<-matrix(0,ncol=Individuosb,nrow=MaxTb)
+
+# Valores iniciales
+
+AHistb[1,]<- round(Mb/2)
+KHistb[1,]<- round(Nb/2)
+
+for (t in 1:(MaxTb-1)){
+  for (j in 1:20){
+  KHistb[t+1,j]<-HIndexb[AHistb[t,j],KHistb[t,j]]
+  AHistb[t+1,j]<-sum(runif(1,0,1)>PAccb[AHistb[t,j],])+1
+  }
+}
+
+```
+
+Se aplica un aumento en el coeficiente de costos convexos de 2 a 20 unidades. Con estas modificacion podemos analizar el efecto que tienen los costos en el estudio de la inversion. 
+Aumentando el factor de costos convexos 10 veces pasando de 2 a 20 unidades podemos notar una disminucion de la funcion valor aproximadamente de la mitad del valor inicial pasando de 60,000 a 30,000 unidades cuando el valor del capital es de 100,000, mientras que la funcion de decision se mantiene sin ninguna variacion.También podemos apreciar un aumento del valor "q" cuando aumentamos los costos convexos en aproximadamene 5 unidades pasando de 15 a 20 en el caso de que el capital tiende a 0, lo que puede interpretarse como : Un aumento de los costos convexos aumentan relativamente el valor de "q" por lo que la empresa estará sobrevalorada respecto al valor de su capital y sera menos atractivo de invertir.
+
+
+
+
+
