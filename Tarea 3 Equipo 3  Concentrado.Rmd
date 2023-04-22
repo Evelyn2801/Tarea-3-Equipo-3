@@ -42,6 +42,9 @@ options(knitr.duplicate.label = "allow")
 
 # Ejercicio 3
 
+```{r child = 'Tarea 3 Ejercicio 3.Rmd'}
+```
+
 
 \newpage
 
