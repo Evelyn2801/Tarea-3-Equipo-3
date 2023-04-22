@@ -285,7 +285,7 @@ for (t in 1:(MaxTb-1)){
 ```
 
 Se aplica un aumento en el coeficiente de costos convexos de 2 a 20 unidades. Con estas modificacion podemos analizar el efecto que tienen los costos en el estudio de la inversion. 
-Aumentando el factor de costos convexos 10 veces pasando de 2 a 20 unidades podemos notar una disminucion de la funcion valor aproximadamente de la mitad del valor inicial pasando de 60,000 a 30,000 unidades cuando el valor del capital es de 100,000, mientras que la funcion de decision se mantiene sin ninguna variacion.También podemos apreciar un aumento del valor "q" cuando aumentamos los costos convexos en aproximadamene 5 unidades pasando de 15 a 20 en el caso de que el capital tiende a 0, lo que puede interpretarse como : Un aumento de los costos convexos aumentan relativamente el valor de "q" por lo que la empresa estará sobrevalorada respecto al valor de su capital y sera menos atractivo de invertir.
+Aumentando el factor de costos convexos 10 veces pasando de 2 a 20 unidades podemos notar una disminucion de la funcion valor aproximadamente de la mitad del valor inicial pasando de 60,000 a 30,000 unidades cuando el valor del capital es de 100,000, mientras que la funcion de decision se mantiene sin ninguna variacion.También podemos apreciar un aumento del valor "q" cuando aumentamos los costos convexos en aproximadamene 5 unidades pasando de 15 a 20 en el caso de que el capital tiende a 0, lo que puede interpretarse como : Un aumento de los costos convexos aumentan relativamente el valor de "q" por lo que la empresa estará sobrevalorada respecto al valor de su capital y sera mas atractivo de invertir.
 
 
 
