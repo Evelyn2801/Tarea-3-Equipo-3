@@ -1,0 +1,220 @@
+---
+title: "Tarea3-Problema2"
+author: "Mario Lechuga"
+date: "2023-04-22"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r data, include = FALSE, message = FALSE, warning = FALSE}
+library(readxl)
+install.packages("mFilter")
+install.packages("ggplot2")
+library("mFilter")
+library("ggplot2")
+library(data.table)
+Base <- read_excel("C:/Users/PROBOOK/Desktop/COLMEX/Segundo Semestre/Macroeconomía/Tarea 3/Base de Datos - Problema 2.xlsx")
+#Crear una nueva base con todas las variables
+Base2 <- read_excel("C:/Users/PROBOOK/Desktop/COLMEX/Segundo Semestre/Macroeconomía/Tarea 3/Base de Datos - Problema 2.xlsx")
+```
+a) Obtenga, del Inegi, datos DESESTACIONALIZADOS para México del consumo ``C'', datos de ``I'', la inversión privada (inversión fija bruta), y de ``Y'', el PIB,entre 1980 y 2022/IV, A FRECUENCIA TRIMESTRAL, EN TÉRMINOS REALES y grafique lastres series. (Si encuentra varias series pero ninguna cubre el periodo completo, tome una decisión ejecutiva para ``unir'' las series.)
+
+b)Grafique la relación entre los cambios de I y los de Y, es decir, grafique los puntos (\%$\Delta Y_t$,\%$\Delta I_t$) poniendo la inversión en el eje de las ordenadas.
+```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.align = "center"}
+GRY1 <- diff(Base2$`Producto Interno Bruto`) / lag(Base2$`Producto Interno Bruto`) * 100 # Tasa Crecimiento PIB
+Base2$`Tasa de Crecimiento PIB` <- GRY1[1:172] 
+Base2$`Tasa de Crecimiento PIB` <- c(NA, head(Base2$`Tasa de Crecimiento PIB`, -1))
+
+GRI1 <- diff(Base2$`Inversión`)/ lag(Base2$`Inversión`) * 100 # Tasa Crecimiento Inversion
+Base2$`Tasa de Crecimiento Inv` <- GRI1[1:172] 
+Base2$`Tasa de Crecimiento Inv` <- c(NA, head(Base2$`Tasa de Crecimiento Inv`, -1))
+
+GRCP1 <- diff(Base2$`Consumo Privado`)/ lag(Base2$`Consumo Privado`) * 100 # Tasa Crecimiento Consumo
+Base2$`Tasa de Crecimiento CP` <- GRCP1[1:172] 
+Base2$`Tasa de Crecimiento CP` <- c(NA, head(Base2$`Tasa de Crecimiento CP`, -1))
+Base <- ts(Base,frequency = 4,start = c(1980,1)) # convirtiendo en serie de tiempo
+
+GRY <- (diff(Base[,2]) / lag(Base[,2],k=-1))*100 # Tasa Crecimiento PIB
+plot.ts(GRY)
+
+GRI <- (diff(Base[,4]) / lag(Base[,4],k=-1))*100 # Tasa Crecimiento Inversión
+plot.ts(GRI)
+
+GRCP <- (diff(Base[,3]) / lag(Base[,3],k=-1))*100 # Tasa Crecimiento Consumo 
+plot.ts(GRCP)
+
+df <- data.frame(GRY,GRI,GRCP)
+
+qplot(x=GRI, y=GRY, data = df,na.rm= TRUE, main = "Scatter Plot de Inversión y PIB", xlab = "Inversión", ylab = "PIB", color = I("red"), size = I(1)) 
+
+qplot(x=GRCP, y=GRY, data = df,na.rm= TRUE, main = "Scatter Plot de Consumo y PIB", xlab = "Consumo", ylab = "PIB", color = I("red"), size = I(1)) 
+```
+Calcule la volatilidad de cada serie y la covarianza entre las tres series de tasas de crecimiento (\%$\Delta I$, \%$\Delta C$ y \%$\Delta Y$),  describa cuál es más volátil y cuales cambios, si los de I o los de C están más relacionados con los de Y.
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
+sd(GRY) # Volatilidad de la tasa de crecimineto del PIB
+sd(GRI) # Volatilidad de la tasa de crecimineto de la Inversión
+sd(GRCP) # Volatilidad de la tasa de crecimineto del Consumo Privado 
+sd(Base[,2]) # Volatilidad de PIB 
+sd(Base[,4]) # Volatilidad de Inversión
+sd(Base[,3]) # Volatilidad de Consumo Privado
+
+cov(df) # Matriz varianza-Covarianza
+```
+La mayor volatilidad la podemos observar en la tasa de crecimiento de la inversión, seguida por la tasa de crecimiento del consumo, y por último, se observa una menor volatilidad en la tasa de crecimiento del producto interno bruto. Por otro lado, en la matriz de varianza-covarianza se puede observar una mayor relación entre la inversión y el producto que entre el consumo y el producto. De esta manera, los cambios en la inversión afectarían en mayor medida los cambios en el producto que los cambios en el consumo.
+
+d)Obtenga, del Banco de México, datos sobre las tasas de interés reales ($r^r$) de la economía $r^r=r^n-\pi$, es decir, la tasa de interés nominal, menos la tasa de inflación esperada (en cuyo caso se trata de la tasa de interés real ``ex-ante''), o menos la tasa de inflación observada (en cuyo caso se trata de la ``ex-post'') y grafíquelas.
+
+```{r, echo=FALSE, message = FALSE, warning = FALSE, fig.align = "center"}
+TIN <- Base[,6]  # Tasa de interes nominal
+Inflacion <- Base[,7] # Tasa de inflacion
+TIR <- TIN - Inflacion # Tasa de interes real
+df2 <- data.frame(TIN,Inflacion,TIR)
+dates <- seq(as.Date("1980-01-01"), length.out = nrow(df2), by = "3 months")
+df2 <- data.frame(TIN,Inflacion,TIR,dates)
+
+
+ggplot(df2, aes(x = dates)) +
+  geom_line(aes(y = TIN, color = "Tasa_Nominal")) +
+  geom_point(aes(y = TIN, color = "Tasa_Nominal")) +
+  geom_line(aes(y = Inflacion, color = "Tasa_Inflacion")) +
+  geom_point(aes(y = Inflacion, color = "Tasa_Inflacion")) +
+  geom_line(aes(y = TIR, color = "Tasa_Real"), linetype = "dashed") +
+  geom_point(aes(y = TIR, color = "Tasa_Real")) +
+  labs(x = "Fecha", y = "Tasas", color = "Legend title")
+```
+e)Estime una serie de modelos lineales con el objetivo de averiguar qué variables predicen la tasa de crecimiento de la inversión $\Delta$\%$I_t$. Utilice valores corrientes y rezagados del crecimiento en el producto, de la tasa de interés real, valores rezagados de la propia tasa de cambio en la inversión y combinaciones de estas variables. 
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
+Base3 <- data.frame(Base2$`Producto Interno Bruto`,Base2$`Consumo Privado`,Base2$Inversión,
+                       Base2$`Tasa de interés real`,Base2$`Tasa de interés nominal`,Base2$`Tasa de inflación`,Base2$`Tasa de Crecimiento PIB`,Base2$`Tasa de Crecimiento Inv`,Base2$`Tasa de Crecimiento CP`)
+Base3 <- na.omit(Base3)
+colnames(Base3)<- c("PIB","Consumo_Privado","Inversión","Tasa_Real","Tasa_Nominal","Inflación",
+                    "GRPIB","GRInv","GRCP")
+#GRInversion = a +bPIB +c consumo_privado+ dTasainteresreal + error
+reg1 <- lm(Base3$GRInv ~ Base3$PIB+Base3$Consumo_Privado+Base3$Tasa_Real)
+summary(reg1)
+
+#GRInversion = a +bGRPIB +cTInteresreal + error
+reg2 <- lm(Base3$GRInv ~ Base3$GRPIB+Base3$Tasa_Real)
+summary(reg2)
+
+#GRInversion = a +bGRPIB +cTInteresreal +dCRconsumoprivado + error
+reg3 <- lm(Base3$GRInv ~ Base3$GRPIB+Base3$Tasa_Real+Base3$GRCP)
+summary(reg3)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado+error
+reg4 <- lm(Base3$GRInv~ Base3$GRPIB+Base3$GRCP+shift(Base3$GRPIB)+shift(Base3$GRCP))
+summary(reg4)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado+fTasareal+error
+reg5 <- lm(Base3$GRInv~ Base3$GRPIB+Base3$GRCP+shift(Base3$GRPIB)+shift(Base3$GRCP)+Base3$Tasa_Real)
+summary(reg5)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado+fGR_1Inversion+gTasareal+error
+reg6 <- lm(Base3$GRInv~ Base3$GRPIB+Base3$GRCP+shift(Base3$GRPIB)+shift(Base3$GRCP)+shift(Base3$GRInv)+Base3$Tasa_Real)
+summary(reg6)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB + eGR_1Inversion+ fGR_1CP +error
+reg7 <- lm(Base3$GRInv ~ Base3$GRPIB+Base3$GRCP+shift(Base3$GRPIB)+shift(Base3$GRInv)+shift(Base3$GRCP))
+summary(reg7)
+
+#GRInversion = a +bGR_1PIB + cGR_1Inversion+ dGR_1CP +error
+reg8 <- lm(Base3$GRInv ~ shift(Base3$GRPIB)+shift(Base3$GRInv)+shift(Base3$GRCP))
+summary(reg8)
+
+#GRInversion = a +bGR_1PIB + cGR_1Inversion+ dGR_1CP +eGR_2PIB +fGR_2Inversion+gGR_1CP+error
+reg9 <- lm(Base3$GRInv ~ shift(Base3$GRPIB)+shift(Base3$GRInv)+shift(Base3$GRCP)+shift(Base3$GRInv,n=2)+shift(Base3$GRPIB,n=2)+shift(Base3$GRCP,n=2))
+summary(reg9)
+
+```
+f)Estime otra serie de modelos lineales con el objetivo de averiguar qué variables predicen la tasa de crecimiento de la inversión $\Delta$\%$I_t$: a las especificaciones del inciso anterior, agregue valores corrientes y/o rezagados de {\it la confianza empresarial} del Inegi y de {\it la confianza del consumidor} elaborado por el Inegi y el Banco de México.
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
+Base4 <- na.omit(Base2)
+
+#GRInversion = a +bPIB +c consumo_privado+ dTasainteresreal + e Confianza Empresarial + f Confianza Consumidor+ error
+reg1_1 <- lm(Base4$`Tasa de Crecimiento Inv`  ~ Base4$`Producto Interno Bruto`+Base4$`Consumo Privado`+Base4$`Tasa de interés real`+
+               Base4$`Confianza empresarial`+Base4$`Confianza del consumidor`)
+summary(reg1_1)
+
+#GRInversion = a +bGRPIB +cTInteresreal + + d Confianza Empresarial + e Confianza Consumidor+ error
+reg1_2 <- lm(Base4$`Tasa de Crecimiento Inv`  ~ Base4$`Tasa de Crecimiento PIB`+Base4$`Tasa de interés real`+
+               Base4$`Confianza empresarial`+Base4$`Confianza del consumidor`)
+summary(reg1_2)
+
+#GRInversion = a +bGRPIB +cTInteresreal +dCRconsumoprivado + e Confianza Empresarial + f Confianza Consumidor+ error
+reg1_3 <- lm(Base2$`Tasa de Crecimiento Inv`  ~ Base2$`Tasa de Crecimiento PIB`+Base2$`Tasa de interés real`+
+               Base2$`Tasa de Crecimiento CP`+Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`)
+summary(reg1_3)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado + f Confianza Empresarial + g Confianza Consumidor+error
+reg1_4 <- lm(Base2$`Tasa de Crecimiento Inv`  ~ Base2$`Tasa de Crecimiento PIB`+
+               Base2$`Tasa de Crecimiento CP`+shift(Base2$`Tasa de Crecimiento PIB`)+shift(Base2$`Tasa de Crecimiento CP`)+Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`)
+summary(reg1_4)
+
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado+fTasareal+ g Confianza Empresarial +h Confianza Consumidor+ error
+reg1_5 <- lm(Base2$`Tasa de Crecimiento Inv`~ Base2$`Tasa de Crecimiento PIB`+Base2$`Tasa de Crecimiento CP`+shift(Base2$`Tasa de Crecimiento PIB`)+shift(Base2$`Tasa de Crecimiento CP`)+Base2$`Tasa de interés real`+Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`)
+summary(reg1_5)
+
+#GRInversion = a +bGRPIB +cCRconsumoprivado + dGR_1PIB+eGR_1Consumpoprivado+fTasareal+ g Confianza Empresarial +h Confianza Consumidor+ iGR_1Inversion error
+reg1_6 <- lm(Base2$`Tasa de Crecimiento Inv`~ Base2$`Tasa de Crecimiento PIB`+Base2$`Tasa de Crecimiento CP`+shift(Base2$`Tasa de Crecimiento PIB`)+shift(Base2$`Tasa de Crecimiento CP`)+Base2$`Tasa de interés real`+Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`
+            +shift(Base2$`Tasa de Crecimiento Inv`))
+summary(reg1_6)
+
+#GRInversion = a + b Confianza Empresarial + c Confianza Consumidor + error
+reg1_7 <- lm(Base2$`Tasa de Crecimiento Inv` ~ Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`)
+summary(reg1_7)
+
+#GRInversion = a +bGR_1PIB + cGR_1Inversion+ dGR_1CP + eConfianza Empresarial+f Confianza Consumidor+ error
+reg1_8<- lm(Base2$`Tasa de Crecimiento Inv` ~ shift(Base2$`Tasa de Crecimiento PIB`)+shift(Base2$`Tasa de Crecimiento Inv`)+shift(Base2$`Tasa de Crecimiento CP`)+Base2$`Confianza empresarial`+Base2$`Confianza del consumidor`)
+summary(reg1_8)
+
+```
+Interprete los resultados.
+
+Con respecto a los resultados reportados en el inciso e):
+
+En la primera regresión, las variables independientes son el producto interno bruto, el consumo privado y la tasa de interés real. Los coeficientes para las tres variables independientes no son estadísticamente significativos, por lo que no hay evidencia de una relación significativa entre estas variables y la tasa de crecimiento de la inversión. A pesar de esta falta de relación significativa, se puede observar el signo positivo del PIB y el signo negativo de la tasa de interés real. Esto se ajusta a la teoría macroeconómica, ya que a mayor actividad económica, hay mayor inversión. Por otro lado, si aumenta la tasa de interés real, se reduce la inversión.
+
+En la segunda regresión, las variables independientes son la tasa de crecimiento del producto interno bruto y la tasa de interés real. El coeficiente para GRPIB es estadísticamente significativo y positivo, lo que indica una relación positiva entre la tasa de crecimiento del producto interno bruto y la tasa de crecimiento de la inversión, lo cual concuerda con la teoría macroeconómica.
+
+En la tercera regresión, las variables independientes son la tasa de crecimiento del producto interno bruto, la tasa de interés real y la tasa de crecimiento del consumo privado. El coeficiente para GRPIB es estadísticamente significativo y se mantiene positivo. Los coeficientes para la tasa de interés real y la tasa de crecimiento del consumo privado no son estadísticamente significativos, lo que sugiere que no hay evidencia de relaciones significativas. Sin embargo, se mantiene lo mencionado en el análisis de la regresión 1.
+
+Con respecto a la cuarta regresión, las variables independientes son las tasas de crecimiento del producto interno bruto, el consumo privado y sus primeros rezagos. Los resultados muestran que GRPIB tiene un efecto positivo y significativo en la tasa de crecimiento de la inversión, mientras que GRCP tiene un coeficiente negativo y no es significativo. Los primeros rezagos de GRPIB y GRCP tampoco son significativos.
+
+La quinta regresión agrega la tasa de interés real como variable independiente al modelo explicado anteriormente. Los resultados muestran que la tasa real no es significativa y su coeficiente es negativo, lo que indica que un aumento en la tasa de interés real conduce a una disminución en la tasa de crecimiento de la inversión.
+
+Se agrega el primer rezago de la variable dependiente como variable independiente al modelo, sin embargo, no es significativo en este caso. Sólo se mantiene significativa la tasa de crecimiento del producto, con un efecto significativo.
+
+En el séptimo modelo, las variables independientes son la tasa de crecimiento del producto interno bruto, la tasa de crecimiento del consumo privado y el primer rezago de GRPIB, GRInv y GRCP. Se muestra que solo GRPIB es significativo en GRInv, con un coeficiente positivo de 2.02579, lo que significa que un aumento del 1% en GRPIB se asocia con un aumento del 2.02579% en GRInv. Sin embargo, el coeficiente del rezago de la tasa de crecimiento de inversión es positivo pero no estadísticamente significativo. El signo nos indica que el crecimiento de la inversión en t=0 ayuda al crecimiento del mismo en t=1.
+
+En el siguiente modelo, las variables independientes son solamente el primer rezago de GRPIB, GRInv y GRCP. Se muestra que el primer rezago de GRInv es significativo, con un coeficiente positivo de 0.5023, lo que significa que un aumento del 1% en GRInv del período anterior se asocia con un aumento del 0.5023% en el período actual. Sin embargo, en esta regresión, el rezago del PIB es negativo. Esto podría deberse a que en el periodo se cuenta con parte de la crisis de la pandemia y que un crecimiento del PIB rezagado pudiera hacer que los inversionistas esperen una próxima desaceleración de la economía.
+
+Por último, en el último modelo, las variables independientes son los primeros y segundos rezagos de las tasas de crecimiento del PIB, inversión y consumo privado. Se puede visualizar que los resultados son similares al modelo anterior, además de que los segundos rezagos no son significativos.
+
+Con respecto a los resultados del inciso f):
+
+En general, estas regresiones siguen la misma estructura que el inciso anterior, pero se agrega el índice de confianza de los empresarios y de los consumidores.
+
+La primera regresión muestra la relación entre la tasa de crecimiento de la inversión y el Producto Interno Bruto (PIB), el consumo privado, la tasa de interés real, la confianza empresarial y la confianza del consumidor. Los resultados muestran que el PIB, la tasa de interés real y la confianza empresarial son estadísticamente significativos para la tasa de crecimiento de la inversión. El coeficiente del PIB es positivo, lo que indica que un aumento en la tasa de crecimiento del PIB conduce a un aumento en la tasa de crecimiento de la inversión. El coeficiente de la tasa de interés real es negativo, lo que indica que un aumento en la tasa de interés real conduce a una disminución en la tasa de crecimiento de la inversión.
+
+Estos resultados están en línea con la teoría. Sin embargo, el coeficiente de la confianza empresarial también es negativo, lo que indica que un aumento en la confianza empresarial conduce a una disminución en la tasa de crecimiento de la inversión, algo que podría ir en contra de la intuición económica.
+
+La segunda regresión muestra la relación entre la tasa de crecimiento de la inversión y la tasa de crecimiento del PIB, la tasa de interés real, la confianza empresarial y la confianza del consumidor. El coeficiente de la tasa de crecimiento del PIB es positivo, lo que indica que un aumento en la tasa de crecimiento del PIB conduce a un aumento en la tasa de crecimiento de la inversión, siendo el único significativo estadísticamente. El coeficiente de la tasa de interés real es negativo. Los coeficientes de la confianza empresarial y la confianza del consumidor no son estadísticamente significativos en este modelo.
+
+En las siguientes regresiones, los coeficientes no son significativos (al menos no de forma linear) por lo que mencionaremos los signos.
+
+En la tercera regresión, la variable dependiente es la tasa de crecimiento de la inversión y las variables independientes son la tasa de crecimiento del producto interno bruto, la tasa de interés real, la tasa de crecimiento del consumo privado, la confianza empresarial y la confianza del consumidor. Con respecto a la tasa de crecimiento del PIB, el consumo privado y la confianza del consumidor, tenemos signos positivos que concuerdan con la teoría. Además, hay un signo negativo en la tasa de interés real.
+
+En la cuarta regresión, eliminamos la tasa de interés real e incluimos los rezagos de la tasa de crecimiento del PIB y del consumo privado. Los resultados generales se mantienen y, con respecto a los rezagos, hay un signo negativo en el rezago del PIB y positivo en el del consumo.
+
+En la quinta regresión, al introducir la tasa de interés real con los rezagos (una combinación de las regresiones 3 y 4), cambian los signos de los rezagos de la tasa de crecimiento mencionados anteriormente, lo que podría deberse a que el efecto de la tasa de interés real estaba contenido en la tasa de crecimiento del PIB rezagado, lo cual tiene sentido ya que aumentar la tasa real generalmente contrae la economía.
+
+En la sexta regresión, incluimos el rezago de la tasa de crecimiento de la inversión. Los resultados se mantienen, pero el signo de este rezago es negativo, lo cual no concuerda con la teoría general de macroeconomía, por lo que podría deberse a datos "outliers" como la crisis de la pandemia.
+
+En la séptima regresión, pretendemos analizar solamente los efectos de las variables de confianza empresarial y del consumidor. A pesar de no ser significativos, obtenemos signos positivos en ambos coeficientes, lo que significa que, ante una mayor confianza, habrá mayor inversión.
+
+Por último, en la octava regresión, agregamos al análisis de estos dos indicadores solamente los rezagos de las tasas de crecimiento de nuestras variables de interés. Los resultados generales se mantienen. Hay un efecto positivo en la tasa de crecimiento de la inversión en el periodo actual si aumenta la tasa de crecimiento del PIB en el periodo anterior, la tasa de crecimiento de la inversión en el periodo anterior y la confianza tanto de empresarios como de consumidores.
+
+En conclusión, dependiendo de cómo se intente medir la explicación de la tasa de crecimiento de la inversión, podemos ver en general un efecto positivo ante aumentos en confianza, crecimiento del PIB y crecimientos rezagados de inversión. Por otro lado, hay un efecto negativo ante aumentos en la tasa de interés real.
