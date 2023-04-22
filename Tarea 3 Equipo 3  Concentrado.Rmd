@@ -36,7 +36,8 @@ options(knitr.duplicate.label = "allow")
 \newpage
 
 # Ejercicio 2
-
+```{r child = 'Tarea 3 problema 2.Rmd'}
+```
 
 \newpage
 
