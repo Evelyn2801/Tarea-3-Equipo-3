@@ -14,6 +14,8 @@ library(readxl)
 #install.packages("ggplot2")
 library(mFilter)
 library(ggplot2)
+library("mFilter")
+library("ggplot2")
 library(data.table)
 Base <- read_excel("~/GitHub/Tarea-3-Equipo-3/Base de Datos - Problema 2.xlsx")
 #Crear una nueva base con todas las variables
