@@ -10,14 +10,14 @@ output:
 
 ```{r data, include = FALSE, message = FALSE, warning = FALSE}
 library(readxl)
-install.packages("mFilter")
-install.packages("ggplot2")
-library("mFilter")
-library("ggplot2")
+#install.packages("mFilter")
+#install.packages("ggplot2")
+library(mFilter)
+library(ggplot2)
 library(data.table)
-Base <- read_excel("C:/Users/PROBOOK/Desktop/COLMEX/Segundo Semestre/Macroeconomía/Tarea 3/Base de Datos - Problema 2.xlsx")
+Base <- read_excel("~/GitHub/Tarea-3-Equipo-3/Base de Datos - Problema 2.xlsx")
 #Crear una nueva base con todas las variables
-Base2 <- read_excel("C:/Users/PROBOOK/Desktop/COLMEX/Segundo Semestre/Macroeconomía/Tarea 3/Base de Datos - Problema 2.xlsx")
+Base2 <- read_excel("~/GitHub/Tarea-3-Equipo-3/Base de Datos - Problema 2.xlsx")
 ```
 a) Obtenga, del Inegi, datos DESESTACIONALIZADOS para México del consumo ``C'', datos de ``I'', la inversión privada (inversión fija bruta), y de ``Y'', el PIB,entre 1980 y 2022/IV, A FRECUENCIA TRIMESTRAL, EN TÉRMINOS REALES y grafique lastres series. (Si encuentra varias series pero ninguna cubre el periodo completo, tome una decisión ejecutiva para ``unir'' las series.)
 
