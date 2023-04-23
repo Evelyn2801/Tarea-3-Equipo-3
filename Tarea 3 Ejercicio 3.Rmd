@@ -9,8 +9,6 @@ description: Este es un ejemplo mínimo de métodos numéricos usando R, knitr y
 ---
 
 
-# Problema 3
-
 Haga una modificación al problema de la empresa que se resuelve en el codigo para resolución numérica del problema de inversión y reporte los cambios que observe en las funciones valor y de política.
 
 
